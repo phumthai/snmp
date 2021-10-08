@@ -2,7 +2,7 @@ var snmp = require ("net-snmp");
 
 var session = snmp.createSession ("10.71.0.3", "cmumrtg");
 
-var oids = ["1.3.6.1.4.1.14179.2.2.2.1.4"];
+var oids = ["1.3.6.1.2.1.1.3.0"];
 
 session.get (oids, function (error, varbinds) {
     if (error) {
@@ -24,4 +24,3 @@ session.trap (snmp.TrapType.LinkDown, function (error) {
         console.error (error);
     }
 });
-//
