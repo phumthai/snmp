@@ -24,3 +24,4 @@ session.trap (snmp.TrapType.LinkDown, function (error) {
         console.error (error);
     }
 });
+//
