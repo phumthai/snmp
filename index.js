@@ -2,7 +2,7 @@ var snmp = require ("net-snmp");
 
 var session = snmp.createSession ("10.71.0.3", "cmumrtg");
 
-var oids = ["1.3.6.1.2.1.1.3.0"];
+var oids = ["1.3.6.1.2.1.1.5.0", "1.3.6.1.2.1.1.6.0"];
 
 session.get (oids, function (error, varbinds) {
     if (error) {
