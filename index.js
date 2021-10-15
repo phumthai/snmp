@@ -9,6 +9,8 @@ var oid_ch = "1.3.6.1.4.1.14179.2.2.2.1.4"; // Wireless channal
 var apn_oid = [];
 var wch_oid = [];
 
+var ap_cn = [];
+
 function doneCb (error) {
     if (error)
         console.error (error.toString ());
@@ -62,9 +64,23 @@ async function first(){
 
 async function second(){
     //console.log(apn_oid.length);
-    var x = wch_oid[0][0];
-    x = x.slice(0,-2)
-    console.log(x);
+    for(var i=0;i<wch_oid.length;i++){
+        var x = wch_oid[i][0];
+        var type = x.slice(-1);
+        x = x.slice(0,-2)
+        for(var j=0;j<apn_oid.length;j++){
+            if(x==apn_oid[j][0]){
+                var y = [];
+                y.push(x);
+                y.push(type);
+                y.push(wch_oid[i][1])
+                y.push(apn_oid[j][1]);
+                ap_cn.push(y);
+                break;
+            }
+        }
+    }
+    console.log(ap_cn);
 }
 
 async function main(){
