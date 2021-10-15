@@ -83,21 +83,7 @@ async function second(){
             }
         }
     }
-    
-    // console.log(ap_cn);
 }
-
-async function main(){
-    await first();
-    await second();
-}
-first().then(()=>{
-    setTimeout(function(){
-        second().then(()=>{
-            third();
-        })        
-    },1000)
-})
 
 //generates random id;
 let guid = () => {
@@ -132,13 +118,25 @@ async function third(){
     con.connect(function(err) {
         if (err) throw err;
         console.log("Connected!");
-            var sql = "INSERT INTO ap_channal_data (id, time, oid, type, name, channal) VALUES ?";
-            var values = ap_cn;
-            con.query(sql,[values], function (err, result) {
-            if (err) throw err;
+        var sql = "INSERT INTO ap_channal_data (id, time, oid, type, name, channal) VALUES ?";
+        var values = ap_cn;
+        ap_cn = [];
+        apn_oid = [];
+        wch_oid = [];
+        con.query(sql,[values], function (err, result) {
+        if (err) throw err;
             console.log("Number of records inserted: " + result.affectedRows);
-            }); 
+        }); 
     });
     console.log(ap_cn.length)
-    throw new Error("Stopping the function!");
 }
+
+setInterval(() => {
+    first().then(()=>{
+        setTimeout(function(){
+            second().then(()=>{
+                third();
+            })
+        },3000)
+    })
+}, 1000*60*5);
