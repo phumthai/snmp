@@ -1,5 +1,6 @@
 const { get } = require("http");
 var snmp = require ("net-snmp");
+var mysql = require('mysql');
 
 var session = snmp.createSession ("10.71.0.3", "cmumrtg");
 
@@ -71,16 +72,19 @@ async function second(){
         for(var j=0;j<apn_oid.length;j++){
             if(x==apn_oid[j][0]){
                 var y = [];
+                y.push(guid());
+                y.push(thistime());
                 y.push(x);
                 y.push(type);
-                y.push(wch_oid[i][1])
                 y.push(apn_oid[j][1]);
+                y.push(wch_oid[i][1]);
                 ap_cn.push(y);
                 break;
             }
         }
     }
-    console.log(ap_cn);
+    
+    // console.log(ap_cn);
 }
 
 async function main(){
@@ -89,12 +93,52 @@ async function main(){
 }
 first().then(()=>{
     setTimeout(function(){
-        second();
-    },2000)
+        second().then(()=>{
+            third();
+        })        
+    },1000)
 })
-// setTimeout(function(){
-    
-// },2000);
 
+//generates random id;
+let guid = () => {
+    let s4 = () => {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+    //return id of format 'aaaaaaaa'-'aaaa'-'aaaa'-'aaaa'-'aaaaaaaaaaaa'
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+}
 
+//get time
+let thistime = () => {
+    var d = new Date()
+    var year = d.getFullYear();
+    var month = d.getMonth();
+    var day = d.getDay();
+    var ho = d.getHours();
+    var minit = d.getMinutes();
+    var sec = d.getSeconds();
+    return year + "-" + month + "-" + day + " " + ho + ":" + minit + ":" + sec; 
+}
 
+async function third(){
+    var con = mysql.createConnection({
+        host: "localhost",
+        user: "root",
+        password: "765",
+        database: "ap_channal"
+    });
+    con.connect(function(err) {
+        if (err) throw err;
+        console.log("Connected!");
+            var sql = "INSERT INTO ap_channal_data (id, time, oid, type, name, channal) VALUES ?";
+            var values = ap_cn;
+            con.query(sql,[values], function (err, result) {
+            if (err) throw err;
+            console.log("Number of records inserted: " + result.affectedRows);
+            }); 
+    });
+    console.log(ap_cn.length)
+    throw new Error("Stopping the function!");
+}
