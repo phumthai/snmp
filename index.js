@@ -5,7 +5,7 @@ var mysql = require('mysql');
 var session = snmp.createSession ("10.71.0.3", "cmumrtg");
 
 var oid_ap = "1.3.6.1.4.1.14179.2.2.1.1.3"; // AP name
-var oid_ch = "1.3.6.1.4.1.14179.2.2.2.1.4"; // Wireless channal
+var oid_ch = "1.3.6.1.4.1.14179.2.2.2.1.4"; // Wireless channel
 
 var apn_oid = [];
 var wch_oid = [];
@@ -74,10 +74,12 @@ async function second(){
                 var y = [];
                 y.push(guid());
                 y.push(thistime());
-                y.push(x);
-                y.push(type);
                 y.push(apn_oid[j][1]);
                 y.push(wch_oid[i][1]);
+                if(x==wch_oid[i+1][0].slice(0,-2)){
+                    y.push(wch_oid[i+1][1]);
+                    i++;
+                }
                 ap_cn.push(y);
                 break;
             }
@@ -118,7 +120,7 @@ async function third(){
     con.connect(function(err) {
         if (err) throw err;
         console.log("Connected!");
-        var sql = "INSERT INTO ap_channal_data (id, time, oid, type, name, channal) VALUES ?";
+        var sql = "INSERT INTO ap_channal_data (id, time, name, channel24, channel5) VALUES ?";
         var values = ap_cn;
         ap_cn = [];
         apn_oid = [];
@@ -137,6 +139,6 @@ setInterval(() => {
             second().then(()=>{
                 third();
             })
-        },3000)
+        },5000)
     })
-}, 1000*60*5);
+}, 10000);
