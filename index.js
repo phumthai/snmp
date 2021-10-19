@@ -2,13 +2,25 @@ const { get } = require("http");
 var snmp = require ("net-snmp");
 var mysql = require('mysql');
 
-var session = snmp.createSession ("10.71.0.3", "cmumrtg");
+var options = {
+    port: 161,
+    retries: 1,
+    timeout: 5000,
+    backoff: 1.0,
+    transport: "udp4",
+    trapPort: 162,
+    version: snmp.Version2c,
+    backwardsGetNexts: true,
+    idBitsSize: 32
+};
 
 var oid_ap = "1.3.6.1.4.1.14179.2.2.1.1.3"; // AP name
 var oid_ch = "1.3.6.1.4.1.14179.2.2.2.1.4"; // Wireless channel
+var oid_pw = "1.3.6.1.4.1.14179.2.2.2.1.6"; // power lvl
 
 var apn_oid = [];
 var wch_oid = [];
+var pwl_oid = [];
 
 var ap_cn = [];
 
@@ -21,7 +33,7 @@ function feedCb_apn (varbinds) {
     for (var i = 0; i < varbinds.length; i++) {
         if (snmp.isVarbindError (varbinds[i]))
             console.error (snmp.varbindError (varbinds[i]));
-        else
+        else{
             //console.log (varbinds[i].oid + "|" + varbinds[i].value);
             var x = [];
             var z = varbinds[i].oid;
@@ -32,6 +44,7 @@ function feedCb_apn (varbinds) {
             y = y.substring(1);
             x.push(y);
             apn_oid.push(x);
+        }
     }
 }
 
@@ -39,7 +52,7 @@ function feedCb_wch (varbinds) {
     for (var i = 0; i < varbinds.length; i++) {
         if (snmp.isVarbindError (varbinds[i]))
             console.error (snmp.varbindError (varbinds[i]));
-        else
+        else{
             //console.log (varbinds[i].oid + "|" + varbinds[i].value);
             var x = [];
             var z = varbinds[i].oid;
@@ -50,6 +63,26 @@ function feedCb_wch (varbinds) {
             y = y.substring(1);
             x.push(y);
             wch_oid.push(x);
+        }
+    }
+}
+
+function feedCb_pwl (varbinds) {
+    for (var i = 0; i < varbinds.length; i++) {
+        if (snmp.isVarbindError (varbinds[i]))
+            console.error (snmp.varbindError (varbinds[i]));
+        else{
+            //console.log (varbinds[i].oid + "|" + varbinds[i].value);
+            var x = [];
+            var z = varbinds[i].oid;
+            z = z.replace('1.3.6.1.4.1.14179.2.2.2.1.6.','');
+            var y;
+            x.push(z);
+            y = "|" + varbinds[i].value;
+            y = y.substring(1);
+            x.push(y);
+            pwl_oid.push(x);
+        }
     }
 }
 
@@ -57,11 +90,22 @@ var maxRepetitions = 20;
 
 // The maxRepetitions argument is optional, and will be ignored unless using
 // SNMP verison 2c
+var Controler = [
+    "10.71.0.3",
+    "10.71.0.7",
+    "10.71.0.8"
+]
 
 async function first(){
-    session.subtree (oid_ap, maxRepetitions, feedCb_apn, doneCb);
-    session.subtree (oid_ch, maxRepetitions, feedCb_wch, doneCb);
+    for(var i=0;i<Controler.length;i++){
+        var session = snmp.createSession (Controler[i], "cmumrtg",options);
+        session.subtree (oid_ap, maxRepetitions, feedCb_apn, doneCb);
+        session.subtree (oid_ch, maxRepetitions, feedCb_wch, doneCb);
+        session.subtree (oid_pw, maxRepetitions, feedCb_pwl, doneCb);
+    }
+    
 }
+
 
 async function second(){
     //console.log(apn_oid.length);
@@ -94,8 +138,8 @@ let guid = () => {
             .toString(16)
             .substring(1);
     }
-    //return id of format 'aaaaaaaa'-'aaaa'-'aaaa'-'aaaa'-'aaaaaaaaaaaa'
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+    //return id of format 'aaaaaaaa'-'aaaaaaaa'-'aaaaaaaa'-'aaaa'-'aaaaaaaaaaaa'
+    return s4() + s4() + '-' + s4() + s4() + '-' + s4() + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }
 
 //get time
@@ -125,6 +169,7 @@ async function third(){
         ap_cn = [];
         apn_oid = [];
         wch_oid = [];
+        pwl_oid = [];
         con.query(sql,[values], function (err, result) {
         if (err) throw err;
             console.log("Number of records inserted: " + result.affectedRows);
@@ -139,6 +184,6 @@ setInterval(() => {
             second().then(()=>{
                 third();
             })
-        },5000)
+        },17000)
     })
-}, 10000);
+}, 1000*60*10);
