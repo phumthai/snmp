@@ -60,11 +60,13 @@ async function second(){
 }
 
 async function third(){
-    var sql = "INSERT INTO ap_channal_change (id, time, oid, name,  channel24, channel5, power24, power5) VALUES ?";
-    var values = change;
-    change = [];
-    data = [];
-    con.query(sql,[values]);
+    if(change.length!=0){
+        var sql = "INSERT INTO ap_channal_change (id, time, oid, name,  channel24, channel5, power24, power5) VALUES ?";
+        var values = change;
+        change = [];
+        data = [];
+        con.query(sql,[values]);
+    }
 }
 
 first().then(()=>{
@@ -72,6 +74,6 @@ first().then(()=>{
         second().then(()=>{
             third();
         })
-    },5000)
+    },10000)
 })
 
