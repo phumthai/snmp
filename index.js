@@ -107,21 +107,24 @@ async function first(){
 }
 
 
+
 async function second(){
     //console.log(apn_oid.length);
     for(var i=0;i<wch_oid.length;i++){
         var x = wch_oid[i][0];
-        var type = x.slice(-1);
         x = x.slice(0,-2)
         for(var j=0;j<apn_oid.length;j++){
             if(x==apn_oid[j][0]){
                 var y = [];
                 y.push(guid());
                 y.push(thistime());
+                y.push(x);
                 y.push(apn_oid[j][1]);
                 y.push(wch_oid[i][1]);
+                y.push(pwl_oid[i][1]);
                 if(x==wch_oid[i+1][0].slice(0,-2)){
                     y.push(wch_oid[i+1][1]);
+                    y.push(pwl_oid[i+1][1]);
                     i++;
                 }
                 ap_cn.push(y);
@@ -164,7 +167,7 @@ async function third(){
     con.connect(function(err) {
         if (err) throw err;
         console.log("Connected!");
-        var sql = "INSERT INTO ap_channal_data (id, time, name, channel24, channel5) VALUES ?";
+        var sql = "INSERT INTO ap_channal_data (id, time, oid, name,  channel24, power24, channel5, power5) VALUES ?";
         var values = ap_cn;
         ap_cn = [];
         apn_oid = [];
@@ -184,6 +187,7 @@ setInterval(() => {
             second().then(()=>{
                 third();
             })
-        },17000)
+        },10000)
     })
-}, 1000*60*10);
+}, 15000);
+
