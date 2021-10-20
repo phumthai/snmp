@@ -34,24 +34,24 @@ async function first(){
 }
 
 async function second(){
-    var first = data[0][2];
+    var first = data[0];
     var one;
     var two;
     for(var i=0;i<data.length;i++){
-        one = data[i][2];
+        one = data[i];
         for(var j=i;j<data.length;j++){
-            two = data[j][2];
-            if(one==two){
-                if(data[i][4]!=data[j][4]||data[i][5]!=data[j][5]){
-                    change.push(data[i]);
-                    change.push(data[j]);
+            two = data[j];
+            if(one[2]==two[2]){
+                if(one[4]!=two[4]||one[5]!=two[5]){
+                    change.push(one);
+                    change.push(two);
                 }
                 one = two;
             }
         }
         if(i+1<data.length){
-            one = data[i+1][2];
-            if(one==first){
+            one = data[i+1];
+            if(one[2]==first[2]){
                 break;
             }
         }  
