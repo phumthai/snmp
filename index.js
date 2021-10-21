@@ -177,7 +177,9 @@ async function third(){
         if (err) throw err;
             console.log("Number of records inserted: " + result.affectedRows);
         }); 
+        con.end();
     });
+    
     console.log(ap_cn.length)
 }
 
@@ -187,7 +189,7 @@ setInterval(() => {
             second().then(()=>{
                 third();
             })
-        },30000)
+        },20000)
     })
-}, 1000*60*10);
+}, 1000*30);
 
