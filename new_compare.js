@@ -31,7 +31,7 @@ async function first(){
             })
         });
     });
-    con.destroy
+    //con.destroy
 }
 
 
@@ -65,10 +65,11 @@ async function third(){
     if(change.length!=0){
         var sql = "INSERT INTO ap_channal_change (id, time, oid, name,  channel24, channel5, power24, power5) VALUES ?";
         var values = change;
+        con.query(sql,[values]);
+        console.log(change);
         change = [];
         data = [];
-        con.query(sql,[values]);
-        con.end();
+        con.destroy();
     }
 }
 
