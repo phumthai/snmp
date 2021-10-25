@@ -111,28 +111,29 @@ async function first(){
 async function second(){
     if(wch_oid.length!=0){
     //console.log(apn_oid.length);
-    for(var i=0;i<wch_oid.length;i++){
-        var x = wch_oid[i][0];
-        x = x.slice(0,-2)
-        for(var j=0;j<apn_oid.length;j++){
-            if(x==apn_oid[j][0]){
-                var y = [];
-                y.push(guid());
-                y.push(thistime());
-                y.push(x);
-                y.push(apn_oid[j][1]);
-                y.push(wch_oid[i][1]);
-                y.push(pwl_oid[i][1]);
-                if(x==wch_oid[i+1][0].slice(0,-2)){
-                    y.push(wch_oid[i+1][1]);
-                    y.push(pwl_oid[i+1][1]);
-                    i++;
+        for(var i=0;i<wch_oid.length;i++){
+            var x = wch_oid[i][0];
+            x = x.slice(0,-2)
+            for(var j=0;j<apn_oid.length;j++){
+                if(x==apn_oid[j][0]){
+                    var y = [];
+                    y.push(guid());
+                    y.push(thistime());
+                    y.push(x);
+                    y.push(apn_oid[j][1]);
+                    y.push(wch_oid[i][1]);
+                    y.push(pwl_oid[i][1]);
+                    if(x==wch_oid[i+1][0].slice(0,-2)){
+                        y.push(wch_oid[i+1][1]);
+                        y.push(pwl_oid[i+1][1]);
+                        i++;
+                    }
+                    ap_cn.push(y);
+                    break;
                 }
-                ap_cn.push(y);
-                break;
             }
         }
-    }}
+
 }
 
 //generates random id;
@@ -159,7 +160,6 @@ let thistime = () => {
 }
 
 async function third(){
-    if(ap_cn.length!=0){
     var con = mysql.createConnection({
         host: "localhost",
         user: "root",
