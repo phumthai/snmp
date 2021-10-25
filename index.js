@@ -109,6 +109,7 @@ async function first(){
 
 
 async function second(){
+    if(wch_oid.length!=0){
     //console.log(apn_oid.length);
     for(var i=0;i<wch_oid.length;i++){
         var x = wch_oid[i][0];
@@ -131,7 +132,7 @@ async function second(){
                 break;
             }
         }
-    }
+    }}
 }
 
 //generates random id;
@@ -158,6 +159,7 @@ let thistime = () => {
 }
 
 async function third(){
+    if(ap_cn.length!=0){
     var con = mysql.createConnection({
         host: "localhost",
         user: "root",
@@ -181,6 +183,7 @@ async function third(){
     });
     
     console.log(ap_cn.length)
+    }
 }
 
 setInterval(() => {
@@ -189,7 +192,7 @@ setInterval(() => {
             second().then(()=>{
                 third();
             })
-        },20000)
+        },30000)
     })
-}, 1000*30);
+}, 1000*60*5);
 
