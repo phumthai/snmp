@@ -14,7 +14,7 @@ var options = {
     idBitsSize: 32
 };
 
-var shot_count = 0;
+var shot_count = -1;
 
 var oid_ap = "1.3.6.1.4.1.14179.2.2.1.1.3"; // AP name
 var oid_ch = "1.3.6.1.4.1.14179.2.2.2.1.4"; // Wireless channel
@@ -28,6 +28,7 @@ var intf_oid = [];
 
 var ap_cn1 = [];
 var ap_cn2 = [];
+var change = [];
 
 function doneCb (error) {
     if (error)
@@ -170,6 +171,7 @@ async function second(){
         }
     }
     shot_count++;
+    console.log("shot count = " + shot_count)
 }
 
 //generates random id;
@@ -203,46 +205,70 @@ let thistime = () => {
 async function third(){
     if(shot_count>0){
         if(shot_count%2!=0){
-            
+            for(var i=0;i<ap_cn1.length;i++){
+                for(var j=0;j<ap_cn2.length;j++){
+                    if(ap_cn1[i][3]==ap_cn2[j][3]){
+                        if(ap_cn1[i][5]!=ap_cn2[j][5]||ap_cn1[i][7]!=ap_cn2[j][7]){
+                            change.push(ap_cn2[j]);
+                            break;
+                        }
+                    }
+                }
+            }
+            console.log("push ap2 " + ap_cn2.length)
+        }
+        else{
+            for(var i=0;i<ap_cn2.length;i++){
+                for(var j=0;j<ap_cn1.length;j++){
+                    if(ap_cn2[i][3]==ap_cn1[j][3]){
+                        if(ap_cn2[i][5]!=ap_cn1[j][5]||ap_cn2[i][7]!=ap_cn1[j][7]){
+                            change.push(ap_cn1[j]);
+                            break;
+                        }
+                    }
+                }
+            }
+            console.log("push ap1 " + ap_cn1.length)
         }
     }
 }
 
 
-// async function third(){
-//     var con = mysql.createConnection({
-//         host: "localhost",
-//         user: "root",
-//         password: "765",
-//         database: "ap_channal"
-//     });
-//     con.connect(function(err) {
-//         if (err) throw err;
-//         console.log("Connected!");
-//         var sql = "INSERT INTO ap_channal_data (id, time, oid, name,  channel24, power24, channel5, power5) VALUES ?";
-//         var values = ap_cn;
-//         ap_cn = [];
-//         apn_oid = [];
-//         wch_oid = [];
-//         pwl_oid = [];
-//         con.query(sql,[values], function (err, result) {
-//         if (err) throw err;
-//             console.log("Number of records inserted: " + result.affectedRows);
-//         }); 
-//     });
-//     console.log(ap_cn.length)
-// }
+async function fourth(){
+    var con = mysql.createConnection({
+        host: "localhost",
+        user: "root",
+        password: "765",
+        database: "ap_channal"
+    });
+    con.connect(function(err) {
+        if (err) throw err;
+        console.log("Connected!");
+        var sql = "INSERT INTO ap_channal_data (id, date, time, oid, name,  channel24, power24, channel5, power5) VALUES ?";
+        var values = change;
+        ap_cn1 = [];
+        ap_cn2 = [];
+        apn_oid = [];
+        wch_oid = [];
+        pwl_oid = [];
+        change = [];
+        con.query(sql,[values], function (err, result) {
+        if (err) throw err;
+            console.log("Number of records inserted: " + result.affectedRows);
+        }); 
+    });
+    console.log("change length = " + change.length)
+}
 
 setInterval(() => {
     first().then(()=>{
         setTimeout(function(){
             second().then(()=>{
-                //third();
-                console.log(ap_cn1.length)
-                console.log(ap_cn2.length)
-                apn_oid = [];
-        wch_oid = [];
-        pwl_oid = [];
+                third().then(()=>{
+                    if(change.length!=0){
+                        fourth();
+                    }
+                })
             })
         },30000)
     })
