@@ -246,11 +246,6 @@ async function fourth(){
         console.log("Connected!");
         var sql = "INSERT INTO ap_channal_data (id, date, time, oid, name,  channel24, power24, channel5, power5) VALUES ?";
         var values = change;
-        ap_cn1 = [];
-        ap_cn2 = [];
-        apn_oid = [];
-        wch_oid = [];
-        pwl_oid = [];
         change = [];
         con.query(sql,[values], function (err, result) {
         if (err) throw err;
@@ -268,6 +263,9 @@ setInterval(() => {
                     if(change.length!=0){
                         fourth();
                     }
+                    apn_oid = [];
+                    wch_oid = [];
+                    pwl_oid = [];
                 })
             })
         },30000)
