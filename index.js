@@ -109,31 +109,29 @@ async function first(){
 
 
 async function second(){
-    if(wch_oid.length!=0){
     //console.log(apn_oid.length);
-        for(var i=0;i<wch_oid.length;i++){
-            var x = wch_oid[i][0];
-            x = x.slice(0,-2)
-            for(var j=0;j<apn_oid.length;j++){
-                if(x==apn_oid[j][0]){
-                    var y = [];
-                    y.push(guid());
-                    y.push(thistime());
-                    y.push(x);
-                    y.push(apn_oid[j][1]);
-                    y.push(wch_oid[i][1]);
-                    y.push(pwl_oid[i][1]);
-                    if(x==wch_oid[i+1][0].slice(0,-2)){
-                        y.push(wch_oid[i+1][1]);
-                        y.push(pwl_oid[i+1][1]);
-                        i++;
-                    }
-                    ap_cn.push(y);
-                    break;
+    for(var i=0;i<wch_oid.length;i++){
+        var x = wch_oid[i][0];
+        x = x.slice(0,-2)
+        for(var j=0;j<apn_oid.length;j++){
+            if(x==apn_oid[j][0]){
+                var y = [];
+                y.push(guid());
+                y.push(thistime());
+                y.push(x);
+                y.push(apn_oid[j][1]);
+                y.push(wch_oid[i][1]);
+                y.push(pwl_oid[i][1]);
+                if(x==wch_oid[i+1][0].slice(0,-2)){
+                    y.push(wch_oid[i+1][1]);
+                    y.push(pwl_oid[i+1][1]);
+                    i++;
                 }
+                ap_cn.push(y);
+                break;
             }
         }
-
+    }
 }
 
 //generates random id;
@@ -163,7 +161,7 @@ async function third(){
     var con = mysql.createConnection({
         host: "localhost",
         user: "root",
-        password: "765",
+        password: "",
         database: "ap_channal"
     });
     con.connect(function(err) {
@@ -179,11 +177,8 @@ async function third(){
         if (err) throw err;
             console.log("Number of records inserted: " + result.affectedRows);
         }); 
-        con.end();
     });
-    
     console.log(ap_cn.length)
-    }
 }
 
 setInterval(() => {
@@ -194,5 +189,4 @@ setInterval(() => {
             })
         },30000)
     })
-}, 1000*60*5);
-
+}, 1000*60);

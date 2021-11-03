@@ -238,7 +238,7 @@ async function fourth(){
     var con = mysql.createConnection({
         host: "localhost",
         user: "root",
-        password: "765",
+        password: "",
         database: "ap_channal"
     });
     con.connect(function(err) {
