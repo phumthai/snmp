@@ -1,6 +1,7 @@
 const { get } = require("http");
 var snmp = require ("net-snmp");
 var mysql = require('mysql');
+require('dotenv').config()
 
 var options = {
     port: 161,
@@ -209,6 +210,8 @@ async function third(){
                 for(var j=0;j<ap_cn2.length;j++){
                     if(ap_cn1[i][3]==ap_cn2[j][3]){
                         if(ap_cn1[i][5]!=ap_cn2[j][5]||ap_cn1[i][7]!=ap_cn2[j][7]){
+                            ap_cn2[j].push(ap_cn1[i][5]);
+                            ap_cn2[j].push(ap_cn1[i][7]);
                             change.push(ap_cn2[j]);
                             break;
                         }
@@ -222,6 +225,8 @@ async function third(){
                 for(var j=0;j<ap_cn1.length;j++){
                     if(ap_cn2[i][3]==ap_cn1[j][3]){
                         if(ap_cn2[i][5]!=ap_cn1[j][5]||ap_cn2[i][7]!=ap_cn1[j][7]){
+                            ap_cn1[j].push(ap_cn2[i][5]);
+                            ap_cn1[j].push(ap_cn2[i][7]);
                             change.push(ap_cn1[j]);
                             break;
                         }
@@ -236,15 +241,15 @@ async function third(){
 
 async function fourth(){
     var con = mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "",
-        database: "ap_channal"
+        host: process.env.MYSQL_HOST,
+        user: process.env.MYSQL_USER,
+        password: process.env.MYSQL_PASSWORD,
+        database: process.env.MYSQL_DATABASE
     });
     con.connect(function(err) {
         if (err) throw err;
         console.log("Connected!");
-        var sql = "INSERT INTO ap_channal_data (id, date, time, oid, name,  channel24, power24, channel5, power5) VALUES ?";
+        var sql = "INSERT INTO ap_channal_data (id, date, time, oid, name,  channel24, power24, channel5, power5, b24, b5) VALUES ?";
         var values = change;
         change = [];
         con.query(sql,[values], function (err, result) {
@@ -270,4 +275,4 @@ setInterval(() => {
             })
         },30000)
     })
-}, 1000*60);
+}, 1000*60*10);
