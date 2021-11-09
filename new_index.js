@@ -190,16 +190,25 @@ let guid = () => {
 let thisdate = () => {
     var d = new Date()
     var year = d.getFullYear();
-    var month = d.getMonth();
-    var day = d.getDay();
+    var month = String(d.getMonth()+1).padStart(2,'0');
+    var day = String(d.getDay()).padStart(2,'0');
     return year + "-" + month + "-" + day; 
 }
 
 let thistime = () => {
     var d = new Date()
-    var ho = d.getHours();
-    var minit = d.getMinutes();
-    var sec = d.getSeconds();
+    var ho = String(d.getHours());
+    var minit = String(d.getMinutes());
+    var sec = String(d.getSeconds());
+    if(ho.length<2){
+        ho = '0' + ho;
+    }
+    if(minit.length<2){
+        minit = '0' + minit;
+    }
+    if(sec.length<2){
+        sec = '0' + sec;
+    }
     return ho + ":" + minit + ":" + sec; 
 }
 
