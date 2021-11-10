@@ -161,7 +161,6 @@ async function second(){
                     y.push(pwl_oid[i+1][1]);
                     i++;
                 }
-                y.push(apn_oid[j][1].slice(0,-7));
                 if(shot_count%2==0){
                     ap_cn1.push(y);
                 }
@@ -222,6 +221,7 @@ async function third(){
                         if(ap_cn1[i][5]!=ap_cn2[j][5]||ap_cn1[i][7]!=ap_cn2[j][7]){
                             ap_cn2[j].push(ap_cn1[i][5]);
                             ap_cn2[j].push(ap_cn1[i][7]);
+                            ap_cn2[j].push(ap_cn1[i][4].slice(0,-7));
                             change.push(ap_cn2[j]);
                             break;
                         }
@@ -237,6 +237,7 @@ async function third(){
                         if(ap_cn2[i][5]!=ap_cn1[j][5]||ap_cn2[i][7]!=ap_cn1[j][7]){
                             ap_cn1[j].push(ap_cn2[i][5]);
                             ap_cn1[j].push(ap_cn2[i][7]);
+                            ap_cn1[j].push(ap_cn2[i][4].slice(0,-7));
                             change.push(ap_cn1[j]);
                             break;
                         }
