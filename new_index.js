@@ -161,6 +161,7 @@ async function second(){
                     y.push(pwl_oid[i+1][1]);
                     i++;
                 }
+                y.push(apn_oid[j][1].slice(0,-7));
                 if(shot_count%2==0){
                     ap_cn1.push(y);
                 }
@@ -249,24 +250,43 @@ async function third(){
 
 
 async function fourth(){
-    var con = mysql.createConnection({
+    var con;
+    var db_config = {
         host: process.env.MYSQL_HOST,
         user: process.env.MYSQL_USER,
         password: process.env.MYSQL_PASSWORD,
         database: process.env.MYSQL_DATABASE
-    });
-    con.connect(function(err) {
-        if (err) throw err;
-        console.log("Connected!");
-        var sql = "INSERT INTO ap_channal_data (id, date, time, oid, name,  channel24, power24, channel5, power5, b24, b5) VALUES ?";
-        var values = change;
-        change = [];
-        con.query(sql,[values], function (err, result) {
-        if (err) throw err;
-            console.log("Number of records inserted: " + result.affectedRows);
-        }); 
-    });
-    console.log("change length = " + change.length)
+    }
+    function handleDisconnect() {
+        con = mysql.createConnection(db_config);            // Recreate the connection, since
+                                                            // the old one cannot be reused.
+      
+        con.connect(function(err) {                         // The server is either down
+            if(err) {                                       // or restarting (takes a while sometimes).
+                console.log('error when connecting to db:', err);
+                setTimeout(handleDisconnect, 2000);         // We introduce a delay before attempting to reconnect,
+            }
+            if (err) throw err;
+            console.log("Connected!");
+            var sql = "INSERT INTO ap_channal_data (id, date, time, oid, name,  channel24, power24, channel5, power5, b24, b5, apgroup) VALUES ?";
+            var values = change;
+            change = [];
+            con.query(sql,[values], function (err, result) {
+                if (err) throw err;
+                console.log("Number of records inserted: " + result.affectedRows);
+            });                                             // to avoid a hot loop, and to allow our node script to
+        });                                                 // process asynchronous requests in the meantime.
+                                                            // If you're also serving http, display a 503 error.
+        con.on('error', function(err) {
+          console.log('db error', err);
+          if(err.code === 'PROTOCOL_CONNECTION_LOST') {     // Connection to the MySQL server is usually
+            handleDisconnect();                             // lost due to either server restart, or a
+          } else {                                          // connnection idle timeout (the wait_timeout
+            throw err;                                      // server variable configures this)
+          }
+        });
+    }
+    handleDisconnect();
 }
 
 setInterval(() => {
