@@ -251,24 +251,34 @@ async function third(){
 
 
 async function fourth(){
-    var con = mysql.createConnection({
-        host: process.env.MYSQL_HOST,
-        user: process.env.MYSQL_USER,
-        password: process.env.MYSQL_PASSWORD,
-        database: process.env.MYSQL_DATABASE
-    });
-    con.connect(function(err) {
-        if (err) throw err;
-        console.log("Connected!");
-        var sql = "INSERT INTO ap_channal_data (id, date, time, oid, name,  channel24, power24, channel5, power5, b24, b5, apgroup) VALUES ?";
-        var values = change;
-        change = [];
-        con.query(sql,[values], function (err, result) {
-        if (err) throw err;
+    function handleDisconnect() {
+        var con = mysql.createConnection({
+            host: process.env.MYSQL_HOST,
+            user: process.env.MYSQL_USER,
+            password: process.env.MYSQL_PASSWORD,
+            database: process.env.MYSQL_DATABASE
+        });
+        con.connect(function(err) {
+            if (err) throw err;
+            console.log("Connected!");
+            var sql = "INSERT INTO ap_channal_data (id, date, time, oid, name,  channel24, power24, channel5, power5, b24, b5, apgroup) VALUES ?";
+            var values = change;
+            change = [];
+            con.query(sql,[values], function (err, result) {
+            if (err) throw err;
             console.log("Number of records inserted: " + result.affectedRows);
-        }); 
-    });
-    console.log("change length = " + change.length)
+            }); 
+        });
+        con.on('error', function(err) {
+            console.log('db error', err);
+            if(err.code === 'PROTOCOL_CONNECTION_LOST') { 
+                handleDisconnect();                         
+            } else {                                     
+                throw err;                                  
+            }
+        });
+    }
+    handleDisconnect();
 }
 
 setInterval(() => {
@@ -286,4 +296,4 @@ setInterval(() => {
             })
         },30000)
     })
-}, 1000*60*10);
+}, 1000*60*5);
