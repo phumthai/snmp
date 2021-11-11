@@ -267,7 +267,10 @@ async function fourth(){
             con.query(sql,[values], function (err, result) {
             if (err) throw err;
             console.log("Number of records inserted: " + result.affectedRows);
-            }); 
+            });
+            setTimeout(function(){
+                con.end();
+            },5000) 
         });
         con.on('error', function(err) {
             console.log('db error', err);
@@ -277,6 +280,9 @@ async function fourth(){
                 throw err;                                  
             }
         });
+        con.on('end',function(){
+            console.log("connection end with mysql server");
+        })
     }
     handleDisconnect();
 }
