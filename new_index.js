@@ -1,6 +1,7 @@
 const { get } = require("http");
 var snmp = require ("net-snmp");
 var mysql = require('mysql');
+const { checkPrime } = require("crypto");
 require('dotenv').config()
 
 var options = {
@@ -191,7 +192,7 @@ let thisdate = () => {
     var d = new Date()
     var year = d.getFullYear();
     var month = String(d.getMonth()+1).padStart(2,'0');
-    var day = String(d.getDay()).padStart(2,'0');
+    var day = String(d.getDay()+7).padStart(2,'0');
     return year + "-" + month + "-" + day; 
 }
 
@@ -251,7 +252,8 @@ async function third(){
 
 
 async function fourth(){
-    function handleDisconnect() {
+    //function handleDisconnect() {
+    try{
         var con = mysql.createConnection({
             host: process.env.MYSQL_HOST,
             user: process.env.MYSQL_USER,
@@ -283,8 +285,12 @@ async function fourth(){
         con.on('end',function(){
             console.log("connection end with mysql server");
         })
+    // }
+    // handleDisconnect();
     }
-    handleDisconnect();
+    catch(err){
+        console.error(err);
+    }
 }
 
 setInterval(() => {
@@ -303,3 +309,4 @@ setInterval(() => {
         },30000)
     })
 }, 1000*60*10);
+
